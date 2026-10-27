@@ -1,4 +1,4 @@
-# DentalCare
+# Dental-Care
 
 DentalCare is a Vietnamese-language dental clinic management and online appointment system. It is organized as a monorepo with a React patient/clinic web app, a Spring Boot REST API, a MySQL database, and a separate FastAPI symptom-information service.
 
