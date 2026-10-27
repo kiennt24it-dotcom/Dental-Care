@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:dentalcare;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  sql:
+    init:
+      mode: never
+  mail:
+    host: localhost
+    port: 1025
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client
+            client-secret: test-secret
+app:
+  jwt:
+    secret: ZGVudGFsY2FyZS1sb2NhbC1kZXZlbG9wbWVudC1zZWNyZXQta2V5LWNoYW5nZS1tZS0zMg==
+    access-expiration-ms: 900000
+    refresh-expiration-ms: 2592000000
+  ai:
+    url: http://localhost:8000
+  frontend-url: http://localhost:5173
+  clinic-timezone: Asia/Ho_Chi_Minh
+  seed:
+    enabled: false

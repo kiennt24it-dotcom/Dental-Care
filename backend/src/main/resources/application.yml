@@ -1,0 +1,59 @@
+server:
+  port: ${SERVER_PORT:8080}
+spring:
+  config:
+    import: optional:file:../.env[.properties]
+  application:
+    name: dentalcare-api
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/dentalcare?createDatabaseIfNotExist=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:dentalcare}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${MAIL_SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${MAIL_STARTTLS:false}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:disabled}
+            client-secret: ${GOOGLE_CLIENT_SECRET:disabled}
+            scope: profile,email
+app:
+  clinic-timezone: ${CLINIC_TIMEZONE:Asia/Ho_Chi_Minh}
+  jwt:
+    secret: ${JWT_SECRET:dentalcare-dev-secret-key-change-in-production}
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}
+  ai:
+    url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  upload-dir: ${UPLOAD_DIR:uploads}
+  seed:
+    enabled: ${SEED_ENABLED:true}
+spring.servlet.multipart:
+  max-file-size: 5MB
+  max-request-size: 6MB
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

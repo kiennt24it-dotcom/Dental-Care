@@ -1,0 +1,72 @@
+services:
+  mysql:
+    image: mysql:8.4
+    profiles: ["bundled-db"]
+    environment:
+      MYSQL_DATABASE: dentalcare
+      MYSQL_USER: dentalcare
+      MYSQL_PASSWORD: ${MYSQL_CONTAINER_PASSWORD:-dentalcare}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-local-only}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - dentalcare_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "127.0.0.1:3307:3306"
+  mailpit:
+    image: axllent/mailpit:v1.22
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+  ai-service:
+    build: ./ai-service
+    environment:
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_API_URL: ${LLM_API_URL:-https://generativelanguage.googleapis.com/v1beta/models}
+      LLM_MODEL: ${LLM_MODEL:-gemini-3.1-flash-lite}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-45}
+      CORS_ORIGINS: ${FRONTEND_URL:-http://localhost:5173},http://localhost:3000
+    ports:
+      - "8000:8000"
+  backend:
+    build: ./backend
+    environment:
+      DB_URL: ${DB_URL:-jdbc:mysql://host.docker.internal:3306/dentalcare?createDatabaseIfNotExist=true&serverTimezone=UTC}
+      DB_USERNAME: ${DB_USERNAME:-dentalcare}
+      DB_PASSWORD: ${DB_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:-dentalcare-dev-secret-key-change-in-production}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-disabled}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-disabled}
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_FROM: ${MAIL_FROM:-noreply@dentalcare.local}
+      AI_SERVICE_URL: http://ai-service:8000
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      CLINIC_TIMEZONE: ${CLINIC_TIMEZONE:-Asia/Ho_Chi_Minh}
+      DDL_AUTO: ${DDL_AUTO:-validate}
+      SEED_ENABLED: ${SEED_ENABLED:-false}
+    depends_on:
+      ai-service:
+        condition: service_started
+      mailpit:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - dentalcare_uploads:/app/uploads
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+volumes:
+  dentalcare_mysql:
+  dentalcare_uploads:

@@ -1,0 +1,11 @@
+services:
+  backend:
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/dentalcare?serverTimezone=UTC
+      DB_USERNAME: dentalcare
+      DB_PASSWORD: ${MYSQL_CONTAINER_PASSWORD:-dentalcare}
+      DDL_AUTO: update
+      SEED_ENABLED: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy
